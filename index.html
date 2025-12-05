@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f5132 0%, #1b6e4f 50%, #2d8659 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,.05) 35px, rgba(0,0,0,.05) 70px);
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        /* Floating Playing Cards */
+        .floating-card {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            animation: floatCard 15s infinite ease-in-out;
+            z-index: 2;
+        }
+
+        .floating-card:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .floating-card:nth-child(2) {
+            top: 70%;
+            left: 10%;
+            animation-delay: 2s;
+        }
+
+        .floating-card:nth-child(3) {
+            top: 20%;
+            right: 8%;
+            animation-delay: 4s;
+        }
+
+        .floating-card:nth-child(4) {
+            bottom: 15%;
+            right: 12%;
+            animation-delay: 6s;
+        }
+
+        .floating-card:nth-child(5) {
+            top: 50%;
+            left: 3%;
+            animation-delay: 1s;
+        }
+
+        .floating-card:nth-child(6) {
+            top: 40%;
+            right: 5%;
+            animation-delay: 3s;
+        }
+
+        @keyframes floatCard {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.6;
+            }
+            25% {
+                transform: translateY(-30px) rotate(5deg);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-50px) rotate(-5deg);
+                opacity: 0.7;
+            }
+            75% {
+                transform: translateY(-30px) rotate(3deg);
+                opacity: 0.8;
+            }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 40px;
+            animation: fadeInUp 1s ease-out;
+            position: relative;
+        }
+
+        /* Greeting Text */
+        .greeting {
+            font-size: 4em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            animation: slideDown 1s ease-out;
+            letter-spacing: 3px;
+        }
+
+        .greeting-emoji {
+            display: inline-block;
+            animation: wave 2s infinite;
+            font-size: 1.2em;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30% { transform: rotate(14deg); }
+            20% { transform: rotate(-8deg); }
+            40% { transform: rotate(0deg); }
+        }
+
+        .subgreeting {
+            font-size: 1.8em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 60px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        /* Select Game Text */
+        .select-text {
+            font-size: 2em;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            animation: pulse 2s infinite;
+            letter-spacing: 2px;
+        }
+
+        /* Game Buttons Container */
+        .buttons-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        /* Game Button Styles */
+        .game-btn {
+            position: relative;
+            padding: 40px 60px;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            min-width: 250px;
+            animation: buttonPop 0.8s ease-out;
+        }
+
+        .game-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .game-btn:hover::before {
+            left: 100%;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-btn:active {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        /* Rummy Button */
+        .rummy-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation-delay: 0.2s;
+        }
+
+        .rummy-btn:hover {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        }
+
+        /* 240 Button */
+        .two40-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            animation-delay: 0.4s;
+        }
+
+        .two40-btn:hover {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+        }
+
+        /* Button Icon */
+        .btn-icon {
+            display: block;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes buttonPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .greeting {
+                font-size: 2.5em;
+            }
+            .subgreeting {
+                font-size: 1.3em;
+            }
+            .select-text {
+                font-size: 1.5em;
+            }
+            .game-btn {
+                font-size: 1.8em;
+                padding: 30px 40px;
+                min-width: 200px;
+            }
+            .buttons-container {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Playing Cards Background -->
+    <div class="floating-card">♠️</div>
+    <div class="floating-card">♥️</div>
+    <div class="floating-card">♦️</div>
+    <div class="floating-card">♣️</div>
+    <div class="floating-card">🃏</div>
+    <div class="floating-card">🎴</div>
+
+    <div class="container">
+        <!-- Greeting -->
+        <h1 class="greeting">
+            Welcome <span class="greeting-emoji">👋</span>
+        </h1>
+        <p class="subgreeting">Let's Play and Have Fun!</p>
+
+        <!-- Select Game Text -->
+        <div class="select-text">
+            ✨ Select Your Game ✨
+        </div>
+
+        <!-- Game Buttons -->
+        <div class="buttons-container">
+            <button class="game-btn rummy-btn" onclick="openRummy()">
+                <span class="btn-icon">🃏</span>
+                Rummy
+            </button>
+            <button class="game-btn two40-btn" onclick="open240()">
+                <span class="btn-icon">🎯</span>
+                240
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Create sparkles
+        function createSparkle() {
+            var sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 3 + 's';
+            document.body.appendChild(sparkle);
+
+            setTimeout(function() {
+                sparkle.remove();
+            }, 3000);
+        }
+
+        // Generate sparkles periodically
+        setInterval(createSparkle, 300);
+
+        // Button click handlers
+        function openRummy() {
+            // Add click animation
+            event.target.style.transform = 'scale(0.95)';
+            setTimeout(function() {
+                // Navigate to Rummy game page
+                window.location.href = 'rummy.html';
+            }, 200);
+        }
+
+        function open240() {
+            // Add click animation
+            event.target.style.transform = 'scale(0.95)';
+            setTimeout(function() {
+                // Navigate to 240 game page
+                window.location.href = '240.html';
+            }, 200);
+        }
+
+        // Add hover sound effect (optional)
+        var buttons = document.querySelectorAll('.game-btn');
+        buttons.forEach(function(button) {
+            button.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+    </script>
+</body>
+</html>

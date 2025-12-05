@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rummy Scoreboard</title>
+
+<style>
+    body {
+        font-family: Poppins, sans-serif;
+        background: url("./assets/images/rummy-bg.jpeg");
+        animation: fadeIn 1s ease-in-out;
+        margin: 0;
+        padding: 0;
+        color: white;
+        background-size: cover;
+        background-position: center;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .container {
+        text-align: center;
+        margin: 30px auto;
+        width: 95%;
+        max-width: 1200px;
+        background: rgba(0, 0, 0, 0.65);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 0 20px black;
+    }
+
+    h1 { font-size: 38px; font-weight: 700; margin-bottom: 15px; color: #ffd166; }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        color: white;
+    }
+
+    th, td {
+        border: 1px solid #ffffff40;
+        padding: 10px;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    th {
+        background: #ffd166;
+        color: black;
+        font-weight: 700;
+    }
+
+    input.score-input {
+        width: 75px;
+        height: 36px;
+        font-size: 18px;
+        border-radius: 6px;
+        outline: none;
+        border: none;
+        text-align: center;
+    }
+
+    .name-input {
+        width: 200px;
+        height: 38px;
+        font-size: 18px;
+        border-radius: 6px;
+        outline: none;
+        border: 2px solid #ffd166;
+        text-align: center;
+        margin: 8px;
+        padding: 5px;
+    }
+
+    .btn {
+        background: #06d6a0;
+        border: none;
+        padding: 12px 25px;
+        font-size: 20px;
+        font-weight: bold;
+        color: black;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px;
+        transition: 0.3s;
+    }
+
+    .btn:hover { background: #04a87c; }
+
+    .winner-box {
+        margin-top: 25px;
+        padding: 18px;
+        font-size: 26px;
+        font-weight: 700;
+        background: #118ab2;
+        border-radius: 10px;
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Rummy Scoreboard</h1>
+
+    <label style="font-size: 22px;">Number of Players: </label>
+    <input type="number" id="numPlayers" min="2" max="6" value="3" style="font-size: 20px; width: 90px;">
+    <button class="btn" onclick="showPlayerNameInputs()">Next</button>
+
+    <div id="playerNamesContainer" style="margin-top: 20px; display: none;"></div>
+    <div id="scoreboardContainer"></div>
+    <div id="winnerBox" class="winner-box"></div>
+</div>
+
+<script>
+let players = [];
+let round = 0;
+let maxRounds = 5;
+
+function showPlayerNameInputs() {
+    const numPlayers = parseInt(document.getElementById("numPlayers").value);
+    if (numPlayers < 2) return alert("Minimum 2 players required");
+    if (numPlayers > 6) return alert("Maximum 6 players allowed");
+
+    let html = '<h2 style="color: #ffd166; margin-bottom: 15px;">Enter Player Names</h2>';
+    
+    for (let i = 0; i < numPlayers; i++) {
+        html += `
+            <div style="margin: 10px;">
+                <label style="font-size: 18px; margin-right: 10px;">Player ${i + 1}:</label>
+                <input type="text" class="name-input" id="playerName_${i}" placeholder="Enter name" value="Player ${i + 1}">
+            </div>`;
+    }
+
+    html += `<button class="btn" onclick="startGame()" style="margin-top: 15px;">Start Game</button>`;
+    document.getElementById("playerNamesContainer").innerHTML = html;
+    document.getElementById("playerNamesContainer").style.display = "block";
+}
+
+function startGame() {
+    const numPlayers = parseInt(document.getElementById("numPlayers").value);
+    players = [];
+
+    for (let i = 0; i < numPlayers; i++) {
+        let nameInput = document.getElementById("playerName_" + i);
+        let playerName = nameInput && nameInput.value.trim() !== "" ? nameInput.value.trim() : "Player " + (i + 1);
+        players.push({ name: playerName, scores: [], total: 0 });
+    }
+
+    round = 0;
+    document.getElementById("playerNamesContainer").style.display = "none";
+    renderScoreTable();
+}
+
+function renderScoreTable() {
+    let html = '<table><tr><th>Player</th>';
+    for (let r = 1; r <= maxRounds; r++) html += `<th>Round ${r}</th>`;
+    html += '<th>Total</th></tr>';
+
+    players.forEach((player, pIndex) => {
+        html += `<tr><td>${player.name}</td>`;
+        for (let r = 0; r < maxRounds; r++) {
+            let max = (r === 0 || r === maxRounds - 1) ? 180 : 90;
+            html += `
+                <td>
+                    <input type="number" class="score-input" 
+                    min="0" max="${max}"
+                    id="score_${pIndex}_${r}"
+                    value="${player.scores[r] || ''}"
+                    oninput="limitScore(this, ${r})"
+                    onchange="updateScore(${pIndex}, ${r})">
+                </td>`;
+        }
+        html += `<td id="total_${pIndex}">${player.total}</td></tr>`;
+    });
+
+    html += '</table>';
+
+    if (round < maxRounds) {
+        html += '<button class="btn" onclick="nextRound()">Next Round</button>';
+    }
+
+    document.getElementById("scoreboardContainer").innerHTML = html;
+}
+
+function limitScore(input, r) {
+    let max = (r === 0 || r === maxRounds - 1) ? 180 : 90;
+    let v = parseInt(input.value);
+    if (v > max) input.value = max;
+    if (v < 0) input.value = 0;
+}
+
+function updateScore(playerIndex, r) {
+    let v = parseInt(document.getElementById(`score_${playerIndex}_${r}`).value) || 0;
+    players[playerIndex].scores[r] = v;
+    calculateTotals();
+}
+
+function calculateTotals() {
+    players.forEach((p, index) => {
+        p.total = p.scores.reduce((a, b) => a + (b || 0), 0);
+        document.getElementById("total_" + index).innerHTML = p.total;
+    });
+}
+
+function nextRound() {
+    round++;
+    if (round >= maxRounds) { showWinner(); return; }
+    renderScoreTable();
+}
+
+function showWinner() {
+    let sorted = [...players].sort((a, b) => a.total - b.total);
+    let winner = sorted[0];
+    document.getElementById("winnerBox").innerHTML = `🏆 Winner: ${winner.name} — Total: ${winner.total}`;
+    document.getElementById("winnerBox").style.display = "block";
+}
+</script>
+
+</body>
+</html>
